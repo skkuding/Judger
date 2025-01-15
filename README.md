@@ -2,9 +2,7 @@
 
 ### How to build libjudger.a
 ```
-1. cd /workspaces/Judger
-2. chmod +x ./build.sh
-3. ./build.sh
+./build.sh
 ```
 
 [![Build Status](https://travis-ci.org/QingdaoU/Judger.svg?branch=newnew)](https://travis-ci.org/QingdaoU/Judger)
