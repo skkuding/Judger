@@ -1,15 +1,14 @@
 #define _POSIX_SOURCE
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <stdarg.h>
-#include <unistd.h>
 #include <sys/file.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "logger.h"
 
 #define log_buffer_size 8192
-
 
 FILE *log_open(const char *filename) {
     FILE *log_fp = fopen(filename, "a");
@@ -19,15 +18,14 @@ FILE *log_open(const char *filename) {
     return log_fp;
 }
 
-
 void log_close(FILE *log_fp) {
     if (log_fp != NULL) {
         fclose(log_fp);
     }
 }
 
-
-void log_write(int level, const char *source_filename, const int line, const FILE *log_fp, const char *fmt, ...) {
+void log_write(int level, const char *source_filename, const int line,
+               const FILE *log_fp, const char *fmt, ...) {
     char LOG_LEVEL_NOTE[][10] = {"FATAL", "WARNING", "INFO", "DEBUG"};
     if (log_fp == NULL) {
         fprintf(stderr, "can not open log file");
@@ -47,19 +45,18 @@ void log_write(int level, const char *source_filename, const int line, const FIL
     vsnprintf(log_buffer, log_buffer_size, fmt, ap);
     va_end(ap);
 
-    int count = snprintf(buffer, log_buffer_size,
-                         "%s [%s] [%s:%s]%s\n",
-                         LOG_LEVEL_NOTE[level], datetime, source_filename, line_str, log_buffer);
+    int count = snprintf(buffer, log_buffer_size, "%s [%s] [%s:%s]%s\n",
+                         LOG_LEVEL_NOTE[level], datetime, source_filename,
+                         line_str, log_buffer);
     // fprintf(stderr, "%s", buffer);
-    int log_fd = fileno((FILE *) log_fp);
+    int log_fd = fileno((FILE *)log_fp);
     if (flock(log_fd, LOCK_EX) == 0) {
-        if (write(log_fd, buffer, (size_t) count) < 0) {
+        if (write(log_fd, buffer, (size_t)count) < 0) {
             fprintf(stderr, "write error");
             return;
         }
         flock(log_fd, LOCK_UN);
-    }
-    else {
+    } else {
         fprintf(stderr, "flock error");
         return;
     }

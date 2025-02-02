@@ -10,4 +10,4 @@ int kill_pid(pid_t pid);
 
 void *timeout_killer(void *timeout_killer_args);
 
-#endif //JUDGER_KILLER_H
+#endif // JUDGER_KILLER_H

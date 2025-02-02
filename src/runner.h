@@ -1,27 +1,26 @@
 #ifndef JUDGER_RUNNER_H
 #define JUDGER_RUNNER_H
 
-#include <sys/types.h>
 #include <stdio.h>
+#include <sys/types.h>
 
 // (ver >> 16) & 0xff, (ver >> 8) & 0xff, ver & 0xff  -> real version
 #define VERSION 0x020101
 
 #define UNLIMITED -1
 
-#define LOG_ERROR(error_code) LOG_FATAL(log_fp, "Error: "#error_code);
+#define LOG_ERROR(error_code) LOG_FATAL(log_fp, "Error: " #error_code);
 
-#define ERROR_EXIT(error_code)\
-    {\
-        LOG_ERROR(error_code);  \
-        _result->error = error_code; \
-        log_close(log_fp);  \
-        return; \
+#define ERROR_EXIT(error_code)                                                 \
+    {                                                                          \
+        LOG_ERROR(error_code);                                                 \
+        _result->error = error_code;                                           \
+        log_close(log_fp);                                                     \
+        return;                                                                \
     }
 
 #define ARGS_MAX_NUMBER 256
 #define ENV_MAX_NUMBER 256
-
 
 enum {
     SUCCESS = 0,
@@ -37,7 +36,6 @@ enum {
     EXECVE_FAILED = -10,
     SPJ_ERROR = -11
 };
-
 
 struct config {
     int max_cpu_time;
@@ -59,7 +57,6 @@ struct config {
     gid_t gid;
 };
 
-
 enum {
     WRONG_ANSWER = -1,
     CPU_TIME_LIMIT_EXCEEDED = 1,
@@ -68,7 +65,6 @@ enum {
     RUNTIME_ERROR = 4,
     SYSTEM_ERROR = 5
 };
-
 
 struct result {
     int cpu_time;
@@ -80,6 +76,5 @@ struct result {
     int result;
 };
 
-
 void run(struct config *, struct result *);
-#endif //JUDGER_RUNNER_H
+#endif // JUDGER_RUNNER_H
