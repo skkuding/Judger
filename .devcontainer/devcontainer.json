@@ -15,7 +15,8 @@
       "extensions": [
         "eamodio.gitlens",
         "ms-azuretools.vscode-docker",
-        "mhutchie.git-graph"
+        "mhutchie.git-graph",
+        "ms-vscode.cpptools-extension-pack"
       ],
       "settings": {
         "extensions.verifySignature": false
