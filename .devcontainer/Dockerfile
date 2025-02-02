@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:alpine
+FROM mcr.microsoft.com/devcontainers/base:dev-alpine3.21
 
 # Install dependencies to build libseccomp
 RUN apk update && apk add --no-cache \
