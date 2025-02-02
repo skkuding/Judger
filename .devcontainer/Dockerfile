@@ -8,7 +8,9 @@ RUN apk update && apk add --no-cache \
   libtool \
   gperf \
   linux-headers \
-  cmake
+  cmake \
+  # For clang-format
+  clang19 clang19-extra-tools
 
 # Clone libseccomp
 RUN git clone https://github.com/seccomp/libseccomp.git /opt/libseccomp
