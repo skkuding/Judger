@@ -5,8 +5,6 @@ build-base \
 autoconf \
 automake \
 libtool \
-git \
-bash \
 gperf \
 linux-headers \
 cmake
