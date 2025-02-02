@@ -7,7 +7,7 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
-  "workspaceFolder": "/workspaces",
-  "postCreateCommand": "cd ./Judger && chmod +x ./build.sh",
-  "remoteUser": "root"
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "vscode"
 }
