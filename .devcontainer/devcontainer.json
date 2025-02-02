@@ -5,12 +5,10 @@
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
-  "runServices": [
-    "devcontainer"
-  ],
+  "runServices": ["devcontainer"],
   "workspaceFolder": "/workspace",
-   "updateRemoteUserUID": false,
-   "customizations": {
+  "updateRemoteUserUID": false,
+  "customizations": {
     "vscode": {
       "extensions": [
         "eamodio.gitlens",
