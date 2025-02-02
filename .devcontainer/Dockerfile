@@ -9,9 +9,11 @@ gperf \
 linux-headers \
 cmake
 
-RUN git clone https://github.com/seccomp/libseccomp.git /libseccomp
+# Clone libseccomp
+RUN git clone https://github.com/seccomp/libseccomp.git /opt/libseccomp
 
-WORKDIR /libseccomp
+# Change to libseccomp directory
+WORKDIR /opt/libseccomp
 
 RUN ./autogen.sh
 RUN ./configure --prefix=/usr --disable-shared --enable-static
