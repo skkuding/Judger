@@ -1,0 +1,16 @@
+version: '3'
+services:
+  devcontainer:
+    profiles: ['devcontainer']
+    image: judger-devcontainer-alpine
+    container_name: judger-dev
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    stdin_open: true
+    tty: true
+    environment:
+      DEVCONTAINER: 1
+    network_mode: host

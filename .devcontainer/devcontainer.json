@@ -3,12 +3,13 @@
 {
   "name": "Judger",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "runServices": [
+    "devcontainer"
+  ],
   "workspaceFolder": "/workspace",
+   "updateRemoteUserUID": false,
    "customizations": {
     "vscode": {
       "extensions": [
