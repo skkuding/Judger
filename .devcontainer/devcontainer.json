@@ -9,5 +9,17 @@
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "workspaceFolder": "/workspace",
+   "customizations": {
+    "vscode": {
+      "extensions": [
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "mhutchie.git-graph"
+      ],
+      "settings": {
+        "extensions.verifySignature": false
+      }
+    }
+  },
   "remoteUser": "vscode"
 }
