@@ -1,0 +1,55 @@
+name: Build libjudger
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # GitHub Actions에서는 AARCH64 대신 arm64라고 지정합니다.
+        arch: [amd64, arm64]
+
+    steps:
+      # 1. 레포지토리 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. QEMU 설정 (다중 아키텍처 빌드를 위해)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      # 3. Docker Buildx 설정
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 4. Docker 이미지 빌드  
+      # Dockerfile이 .devcontainer 폴더 안에 있으므로 -f 옵션을 사용합니다.
+      - name: Build Docker image for ${{ matrix.arch }}
+        run: |
+          docker buildx build \
+            --platform linux/${{ matrix.arch }} \
+            -f .devcontainer/Dockerfile \
+            --tag libjudger-builder:${{ matrix.arch }} \
+            --load .
+
+      # 5. Docker 컨테이너에서 빌드 스크립트 실행  
+      # 레포지토리 전체를 /workspace에 마운트하여, 컨테이너 내부에서 build.sh를 실행합니다.
+      - name: Run build inside container for ${{ matrix.arch }}
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}":/workspace \
+            -w /workspace \
+            libjudger-builder:${{ matrix.arch }} \
+            bash build.sh
+
+      # 6. 빌드 산출물(libjudger.a) 업로드  
+      # build.sh 스크립트에서 최종 artifact를 output/libjudger.a에 생성한다고 가정합니다.
+      - name: Upload libjudger artifact for ${{ matrix.arch }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: libjudger-${{ matrix.arch }}.a
+          path: output/libjudger.a
