@@ -10,7 +10,9 @@ RUN apk update && apk add --no-cache \
   linux-headers \
   cmake \
   # For clang-format
-  clang19 clang19-extra-tools
+  clang19 clang19-extra-tools \
+  # For openjdk17
+  openjdk17
 
 # Clone libseccomp
 RUN git clone https://github.com/seccomp/libseccomp.git /opt/libseccomp
