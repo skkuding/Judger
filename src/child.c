@@ -1,6 +1,7 @@
 #define _DEFAULT_SOURCE
 #define _POSIX_SOURCE
 #define _GNU_SOURCE
+
 #include <dlfcn.h>
 #include <errno.h>
 #include <grp.h>
@@ -12,6 +13,7 @@
 #include <string.h>
 #include <sys/mount.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -22,6 +24,31 @@
 #include "runner.h"
 
 #include "killer.h"
+
+extern char MEMORY_MAX_FILE_PATH[128], CGROUP_PROCS_FILE_PATH[128];
+
+static int assign_to_cgroup() {
+    FILE *f = fopen(CGROUP_PROCS_FILE_PATH, "w");
+    if (!f) {
+        perror("fopen(cgroup.procs)");
+        return -1;
+    }
+    // 현재 프로세스의 PID를 cgroup.procs에 기록
+    fprintf(f, "%d", getpid());
+    fclose(f);
+    return 0;
+}
+
+static int set_cgroup_memory_limit(int64_t max_memory) {
+    FILE *f = fopen(MEMORY_MAX_FILE_PATH, "w");
+    if (!f) {
+        perror("fopen memory.max");
+        return -1;
+    }
+    fprintf(f, "%ld", max_memory);
+    fclose(f);
+    return 0;
+}
 
 void close_file(FILE *fp) {
     if (fp != NULL) {
@@ -44,14 +71,11 @@ void child_process(FILE *log_fp, struct config *_config) {
     // if memory_limit_check_only == 0, we only check memory usage number,
     // because setrlimit(maxrss) will cause some crash issues
     if (_config->memory_limit_check_only == 0) {
-        if (_config->max_memory != UNLIMITED) {
-            struct rlimit max_memory;
-            max_memory.rlim_cur = max_memory.rlim_max =
-                (rlim_t)(_config->max_memory) * 2;
-            if (setrlimit(RLIMIT_AS, &max_memory) != 0) {
-                CHILD_ERROR_EXIT(SETRLIMIT_FAILED);
-            }
-        }
+        if (set_cgroup_memory_limit(_config->max_memory) != 0)
+            CHILD_ERROR_EXIT(CGROUP_FAILED);
+
+        if (assign_to_cgroup() != 0)
+            CHILD_ERROR_EXIT(CGROUP_FAILED);
     }
 
     // set cpu time limit (in seconds)
