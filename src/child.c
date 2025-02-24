@@ -68,8 +68,6 @@ void child_process(FILE *log_fp, struct config *_config) {
     }
 
     // set memory limit
-    // if memory_limit_check_only == 0, we only check memory usage number,
-    // because setrlimit(maxrss) will cause some crash issues
     if (_config->memory_limit_check_only == 0) {
         if (set_cgroup_memory_limit(_config->max_memory) != 0)
             CHILD_ERROR_EXIT(CGROUP_FAILED);
