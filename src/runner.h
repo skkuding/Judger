@@ -34,7 +34,9 @@ enum {
     DUP2_FAILED = -8,
     SETUID_FAILED = -9,
     EXECVE_FAILED = -10,
-    SPJ_ERROR = -11
+    SPJ_ERROR = -11,
+    CONTAINER_ID_ENV_VAR_NOT_FOUND = -12,
+    CGROUP_FAILED = -13
 };
 
 struct config {
