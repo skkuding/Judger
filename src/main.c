@@ -1,8 +1,15 @@
 #include "argtable3.h"
 #include "runner.h"
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define INT_PLACE_HOLDER "<n>"
 #define STR_PLACE_HOLDER "<str>"
+#define CGROUP_PATH_PREFIX "/sys/fs/cgroup/sandbox"
+#define CGROUP_PROCS_FILE "cgroup.procs"
+#define MEMORY_MAX_FILE "memory.max"
 
 struct arg_lit *verb, *help, *version;
 struct arg_int *max_cpu_time, *max_real_time, *max_memory, *max_stack,
@@ -10,6 +17,8 @@ struct arg_int *max_cpu_time, *max_real_time, *max_memory, *max_stack,
 struct arg_str *exe_path, *input_path, *output_path, *error_path, *args, *env,
     *log_path, *seccomp_rule_name;
 struct arg_end *end;
+
+char MEMORY_MAX_FILE_PATH[128], CGROUP_PROCS_FILE_PATH[128];
 
 int main(int argc, char *argv[]) {
     void *arg_table[] = {
@@ -185,6 +194,30 @@ int main(int argc, char *argv[]) {
     } else {
         _config.gid = 65534;
     }
+
+    const char *const container_id = getenv("CONTAINER_ID");
+    char path[128];
+
+    if (container_id == NULL) {
+        fprintf(stderr, "Environment variable CONTAINER_ID not set\n");
+        exitcode = 1;
+        goto exit;
+    }
+
+    snprintf(path, sizeof(path), "%s-%s", CGROUP_PATH_PREFIX, container_id);
+
+    if (access(path, F_OK) != 0) {
+        if (mkdir(path, 0755) != 0) {
+            perror("mkdir");
+            exitcode = 1;
+            goto exit;
+        }
+    }
+
+    snprintf(CGROUP_PROCS_FILE_PATH, sizeof(CGROUP_PROCS_FILE_PATH), "%s/%s",
+             path, CGROUP_PROCS_FILE);
+    snprintf(MEMORY_MAX_FILE_PATH, sizeof(MEMORY_MAX_FILE_PATH), "%s/%s", path,
+             MEMORY_MAX_FILE);
 
     run(&_config, &_result);
 
