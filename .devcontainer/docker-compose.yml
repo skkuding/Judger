@@ -6,7 +6,7 @@ services:
     container_name: judger-dev
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: .devcontainer/Dockerfile.dev
     volumes:
       - ..:/workspace:cached
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
