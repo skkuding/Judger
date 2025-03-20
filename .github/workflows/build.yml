@@ -46,10 +46,10 @@ jobs:
             libjudger-builder:${{ matrix.arch }} \
             bash build.sh
 
-      # 6. 빌드 산출물(libjudger.a) 업로드  
-      # build.sh 스크립트에서 최종 artifact를 output/libjudger.a에 생성한다고 가정합니다.
+      # 6. 빌드 산출물(libjudger.so) 업로드  
+      # build.sh 스크립트에서 최종 artifact를 output/libjudger.so에 생성한다고 가정합니다.
       - name: Upload libjudger artifact for ${{ matrix.arch }}
         uses: actions/upload-artifact@v4
         with:
-          name: libjudger-${{ matrix.arch }}.a
-          path: output/libjudger.a
+          name: libjudger-${{ matrix.arch }}.so
+          path: output/libjudger.so

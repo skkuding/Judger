@@ -8,10 +8,10 @@ set(CMAKE_C_FLAGS "-g -Wall -Werror -O3 -std=c99 -static -pie -fPIC")
 
 # make judger lib
 file(GLOB SOURCE "src/*.c" "src/rules/*.c")
-add_executable(libjudger.a ${SOURCE})
-target_link_libraries(libjudger.a pthread seccomp)
+add_executable(libjudger.so ${SOURCE})
+target_link_libraries(libjudger.so pthread seccomp)
 
 
-install(FILES output/libjudger.a
+install(FILES output/libjudger.so
     PERMISSIONS OWNER_EXECUTE OWNER_READ
     DESTINATION /usr/lib/judger)
