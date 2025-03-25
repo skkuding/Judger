@@ -19,6 +19,27 @@
 #include "logger.h"
 #include "runner.h"
 
+extern char MEMORY_PEAK_FILE_PATH[256], MEMORY_EVENTS_FILE_PATH[256];
+
+static int check_oom_kill_occurred() {
+    // read MEMORY_EVENTS_FILE_PATH to check oom_kill is greater than 0
+    // file content is like "oom_kill 1"
+    FILE *memory_events_fp = fopen(MEMORY_EVENTS_FILE_PATH, "r");
+    if (memory_events_fp != NULL) {
+        char event_name[256];
+        int oom_kill;
+        while (fscanf(memory_events_fp, "%s %d", event_name, &oom_kill) !=
+               EOF) {
+            if (strcmp(event_name, "oom_kill") == 0 && oom_kill > 0) {
+                fclose(memory_events_fp);
+                return 1;
+            }
+        }
+        fclose(memory_events_fp);
+    }
+    return 0;
+}
+
 void init_result(struct result *_result) {
     _result->result = _result->error = SUCCESS;
     _result->cpu_time = _result->real_time = _result->signal =
@@ -109,7 +130,13 @@ void run(struct config *_config, struct result *_result) {
             _result->exit_code = WEXITSTATUS(status);
             _result->cpu_time = (int)(resource_usage.ru_utime.tv_sec * 1000 +
                                       resource_usage.ru_utime.tv_usec / 1000);
-            _result->memory = resource_usage.ru_maxrss * 1024;
+
+            // read MEMORY_PEAK_FILE_PATH to get memory usage
+            FILE *memory_peak_fp = fopen(MEMORY_PEAK_FILE_PATH, "r");
+            if (memory_peak_fp != NULL) {
+                fscanf(memory_peak_fp, "%ld", &_result->memory);
+                fclose(memory_peak_fp);
+            }
 
             if (_result->exit_code != 0) {
                 _result->result = RUNTIME_ERROR;
@@ -117,7 +144,7 @@ void run(struct config *_config, struct result *_result) {
 
             if (_result->signal == SIGSEGV) {
                 if (_config->max_memory != UNLIMITED &&
-                    _result->memory > _config->max_memory) {
+                    check_oom_kill_occurred()) {
                     _result->result = MEMORY_LIMIT_EXCEEDED;
                 } else {
                     _result->result = RUNTIME_ERROR;
@@ -127,7 +154,7 @@ void run(struct config *_config, struct result *_result) {
                     _result->result = RUNTIME_ERROR;
                 }
                 if (_config->max_memory != UNLIMITED &&
-                    _result->memory > _config->max_memory) {
+                    check_oom_kill_occurred()) {
                     _result->result = MEMORY_LIMIT_EXCEEDED;
                 }
                 if (_config->max_real_time != UNLIMITED &&

@@ -1,7 +1,9 @@
 #include "argtable3.h"
 #include "runner.h"
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -18,7 +20,8 @@ struct arg_str *exe_path, *input_path, *output_path, *error_path, *args, *env,
     *log_path, *seccomp_rule_name;
 struct arg_end *end;
 
-char MEMORY_MAX_FILE_PATH[128], CGROUP_PROCS_FILE_PATH[128];
+char MEMORY_MAX_FILE_PATH[256], MEMORY_PEAK_FILE_PATH[256],
+    MEMORY_EVENTS_FILE_PATH[256], CGROUP_PROCS_FILE_PATH[256];
 
 int main(int argc, char *argv[]) {
     void *arg_table[] = {
@@ -196,7 +199,7 @@ int main(int argc, char *argv[]) {
     }
 
     const char *const container_id = getenv("CONTAINER_ID");
-    char path[128];
+    char path[256], box_path[256];
 
     if (container_id == NULL) {
         fprintf(stderr, "Environment variable CONTAINER_ID not set\n");
@@ -213,11 +216,57 @@ int main(int argc, char *argv[]) {
             goto exit;
         }
     }
+    // add "+memory" to {path}/cgroup.subtree_control if +memory is not in it
+    char subtree_control[256];
+    snprintf(subtree_control, sizeof(subtree_control),
+             "%s/cgroup.subtree_control", path);
+    FILE *subtree_control_fp = fopen(subtree_control, "r");
+    if (subtree_control_fp == NULL) {
+        perror("fopen(cgroup.subtree_control)");
+        exitcode = 1;
+        goto exit;
+    }
+    // check if "memory" is in cgroup.subtree_control
+    int found = 0;
+    char line[256];
+    while (fgets(line, sizeof(line), subtree_control_fp) != NULL) {
+        if (strstr(line, "memory") != NULL) {
+            found = 1;
+            break;
+        }
+    }
+    if (!found) {
+        fclose(subtree_control_fp);
+        subtree_control_fp = fopen(subtree_control, "w");
+        if (subtree_control_fp == NULL) {
+            perror("fopen(cgroup.subtree_control)");
+            exitcode = 1;
+            goto exit;
+        }
+        fprintf(subtree_control_fp, "+memory\n");
+    }
+    fclose(subtree_control_fp);
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    snprintf(box_path, sizeof(box_path), "%s/box-%ld-%06ld", path, tv.tv_sec,
+             tv.tv_usec);
+
+    if (mkdir(box_path, 0777) != 0) {
+        perror("mkdir");
+        exitcode = 1;
+        goto exit;
+    }
 
     snprintf(CGROUP_PROCS_FILE_PATH, sizeof(CGROUP_PROCS_FILE_PATH), "%s/%s",
-             path, CGROUP_PROCS_FILE);
-    snprintf(MEMORY_MAX_FILE_PATH, sizeof(MEMORY_MAX_FILE_PATH), "%s/%s", path,
-             MEMORY_MAX_FILE);
+             box_path, CGROUP_PROCS_FILE);
+    snprintf(MEMORY_MAX_FILE_PATH, sizeof(MEMORY_MAX_FILE_PATH), "%s/%s",
+             box_path, MEMORY_MAX_FILE);
+    snprintf(MEMORY_PEAK_FILE_PATH, sizeof(MEMORY_PEAK_FILE_PATH), "%s/%s",
+             box_path, "memory.peak");
+    snprintf(MEMORY_EVENTS_FILE_PATH, sizeof(MEMORY_EVENTS_FILE_PATH), "%s/%s",
+             box_path, "memory.events");
 
     run(&_config, &_result);
 

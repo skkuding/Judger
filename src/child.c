@@ -25,7 +25,7 @@
 
 #include "killer.h"
 
-extern char MEMORY_MAX_FILE_PATH[128], CGROUP_PROCS_FILE_PATH[128];
+extern char MEMORY_MAX_FILE_PATH[256], CGROUP_PROCS_FILE_PATH[256];
 
 static int assign_to_cgroup() {
     FILE *f = fopen(CGROUP_PROCS_FILE_PATH, "w");
