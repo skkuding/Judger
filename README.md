@@ -50,12 +50,29 @@ javac Main.java
 sudo -E ./output/libjudger.so --max_memory=100000 --exe_path="/usr/bin/java" --args="Main" --input_path='input.txt' --output_path='output.txt'
 ```
 
-You can check the OOM killer has been triggered by the following command  
+```plaintext
+{
+    "cpu_time": 1,
+    "real_time": 19,
+    "memory": 98304,
+    "signal": 9,
+    "exit_code": 0,
+    "error": 0,
+    "result": 3
+}
+```
+
+You can check the OOM killer has been triggered by the following command (`sandbox-48b5128e61291f5fd7a2fc282a8db5e3d021b15335a926171a51b4849ac8354a/box-1742911514-512474` is an example)
+
+`48b5128e61291f5fd7a2fc282a8db5e3d021b15335a926171a51b4849ac8354a` is the container ID, and `1742911514` is the tv_sec of the time, and `512474` is the tv_nsec of the time when `libjuder.so` executed.  
+So, they're subject to change on your machine.  
 
 ```bash
-cd /sys/fs/cgroup/sandbox-${CONTAINER_ID}
+cd /sys/fs/cgroup/sandbox-48b5128e61291f5fd7a2fc282a8db5e3d021b15335a926171a51b4849ac8354a/box-1742911514-512474
 cat memory.events
-# output
+```
+
+```plaintext
 low 0
 high 0
 max 7335
