@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
     snprintf(box_path, sizeof(box_path), "%s/box-%ld-%06ld", path, tv.tv_sec,
              tv.tv_usec);
 
-    if (mkdir(box_path, 0777) != 0) {
+    if (mkdir(box_path, 0755) != 0) {
         perror("mkdir");
         exitcode = 1;
         goto exit;
