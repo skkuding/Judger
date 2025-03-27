@@ -118,6 +118,9 @@ void run(struct config *_config, struct result *_result) {
             if (pthread_cancel(tid) != 0) {
                 // todo logging
             };
+            if (pthread_join(tid, NULL) != 0) {
+                // todo logging
+            };
         }
 
         if (WIFSIGNALED(status) != 0) {
