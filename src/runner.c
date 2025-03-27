@@ -115,11 +115,12 @@ void run(struct config *_config, struct result *_result) {
 
         // process exited, we may need to cancel timeout killer thread
         if (_config->max_real_time != UNLIMITED) {
-            if (_result->real_time < _config->max_real_time) {
-                if (pthread_cancel(tid) != 0) {
-                    // todo logging
-                };
-            }
+            if (pthread_cancel(tid) != 0) {
+                // todo logging
+            };
+            if (pthread_join(tid, NULL) != 0) {
+                // todo logging
+            };
         }
 
         if (WIFSIGNALED(status) != 0) {
