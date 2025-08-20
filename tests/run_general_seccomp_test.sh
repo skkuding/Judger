@@ -30,7 +30,7 @@ for src in "$TEST_DIR"/*.c; do
 done
 
 echo
-echo "===== 실행 (seccomp_rule_name=general) ====="
+echo "===== [EXECUTE] (seccomp_rule_name=general) ====="
 run_one () {
   local exe=$1
   echo
