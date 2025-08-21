@@ -11,12 +11,7 @@
 int general_seccomp_rules(struct config *_config) {
     int syscalls_blacklist[] = {SCMP_SYS(clone),
                                 SCMP_SYS(fork), SCMP_SYS(vfork),
-                                SCMP_SYS(kill), SCMP_SYS(getdents),
-                                SCMP_SYS(getdents64), SCMP_SYS(prctl),
-                                SCMP_SYS(mkdir), SCMP_SYS(rmdir),
-                                SCMP_SYS(chdir), SCMP_SYS(chmod),
-                                SCMP_SYS(chown), SCMP_SYS(syslog),
-                                SCMP_SYS(rename), SCMP_SYS(unlink),
+                                SCMP_SYS(kill), 
 #ifdef __NR_execveat
                                 SCMP_SYS(execveat)
 #endif
