@@ -271,16 +271,17 @@ int main(int argc, char *argv[]) {
     run(&_config, &_result);
 
     printf("{\n"
-           "    \"cpu_time\": %d,\n"
-           "    \"real_time\": %d,\n"
-           "    \"memory\": %ld,\n"
-           "    \"signal\": %d,\n"
-           "    \"exit_code\": %d,\n"
-           "    \"error\": %d,\n"
-           "    \"result\": %d\n"
-           "}",
-           _result.cpu_time, _result.real_time, _result.memory, _result.signal,
-           _result.exit_code, _result.error, _result.result);
+        "    \"cpu_time\": %d,\n"
+        "    \"real_time\": %d,\n"
+        "    \"memory\": %ld,\n"
+        "    \"signal\": %d,\n"
+        "    \"exit_code\": %d,\n"
+        "    \"error\": %d,\n"
+        "    \"result\": %d,\n"
+        "    \"cgroup_path\": \"%s\"\n"
+        "}",
+        _result.cpu_time, _result.real_time, _result.memory, _result.signal,
+        _result.exit_code, _result.error, _result.result, box_path);
 
 exit:
     arg_freetable(arg_table, sizeof(arg_table) / sizeof(arg_table[0]));
